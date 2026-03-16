@@ -1,70 +1,82 @@
-import matplotlib.pyplot as plt
-import time
+#include <unistd.h>
+#include <sys/types.h>
+#include <stdio.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/sem.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include "resource.h"
 
-plt.style.use("ggplot")
-plt.ion()
+union semun
+{
+    int val;
+};
+int main()
+{
+    FILE *fp = fopen("resource_log.txt", "w");
+    if (fp != NULL)
+    {
+        fclose(fp);
+    }
 
-colors = ["red","blue","green","orange","purple"]
+    key_t shmkey = 5678;
+    key_t semkey = 9999;
 
-while True:
+    int shmid = shmget(shmkey, sizeof(SharedData), 0666 | IPC_CREAT);
 
-    counts = [0,0,0,0,0]
-    queue_size = 0
+    if (shmid < 0)
+    {
+        printf("Shared memory creation failed\n");
+        return 1;
+    }
 
-    try:
-        with open("resource_log.txt") as f:
-            for line in f:
+    SharedData *data = (SharedData *)shmat(shmid, NULL, 0);
 
-                parts = line.split()
+    if (data == (void *)-1)
+    {
+        printf("Shared memory attach failed\n");
+        return 1;
+    }
 
-                if len(parts) < 6:
-                    continue
+    int semid = semget(semkey, 1, 0666 | IPC_CREAT);
 
-                # count resource allocation
-                if "ALLOCATED" in line:
-                    r = int(parts[-2])
-                    counts[r] += 1
+    union semun setval;
+    setval.val = 1;
+    semctl(semid, 0, SETVAL, setval);
 
-                # count waiting queue
-                if "WAITING" in line:
-                    queue_size += 1
+    /* initialize shared memory */
+    memset(data, 0, sizeof(SharedData));
+    data->front = -1;
+    data->rear = -1;
 
-    except:
-        pass
+    data->manager_running = 1;
 
-    plt.clf()
+    printf("=== OS Resource Manager Running ===\n");
 
-    # -------- Resource Usage Graph --------
-    plt.subplot(1,2,1)
+    while (1)
+    {
 
-    bars = plt.bar(range(5), counts, color=colors)
+        printf("\nResource Status:\n");
 
-    plt.title("Resource Usage")
-    plt.xlabel("Resource ID")
-    plt.ylabel("Allocations")
+        printf("\n---------------------------------\n");
+        printf("ID\tSTATUS\t\tOWNER\n");
+        printf("---------------------------------\n");
 
-    plt.xticks(range(5), ["R0","R1","R2","R3","R4"])
+        for (int i = 0; i < MAX_RESOURCES; i++)
+        {
 
-    # keep graph scale clean
-    plt.ylim(0, max(counts)+2 if max(counts)>0 else 2)
+            if (data->resource[i] == 0)
+                printf("%d\tFREE\t\t-\n", i);
+            else
+                printf("%d\tALLOCATED\t%s\n", i, data->owner[i]);
+        }
 
-    # show numbers above bars
-    for bar in bars:
-        h = bar.get_height()
-        plt.text(bar.get_x()+bar.get_width()/2,
-                 h+0.05,
-                 str(int(h)),
-                 ha='center')
+        printf("---------------------------------\n");
 
-    # -------- Waiting Queue Graph --------
-    plt.subplot(1,2,2)
+        sleep(3);
+    }
 
-    plt.bar(["Queue"], [queue_size], color="purple")
-
-    plt.title("Waiting Queue Size")
-    plt.ylabel("Processes Waiting")
-
-    plt.ylim(0,4)   # queue max is 3 so keep scale nice
-
-    plt.pause(1)
-    time.sleep(1)
+    return 0;
+}

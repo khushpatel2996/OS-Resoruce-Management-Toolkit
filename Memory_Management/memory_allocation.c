@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 
 int firstCount=0,bestCount=0,worstCount=0;
 
@@ -14,28 +15,58 @@ long long convertToBytes(double value, char unit[])
         exit(1);
     }
 
-    if(strcmp(unit,"Bit")==0 || strcmp(unit,"bit")==0)
+    if(strcasecmp(unit,"bit")==0)
         return value / 8;
 
-    if(strcmp(unit,"Byte")==0 || strcmp(unit,"B")==0)
+    if(strcasecmp(unit,"byte")==0 || strcasecmp(unit,"b")==0)
         return value;
 
-    if(strcmp(unit,"KB")==0)
+    if(strcasecmp(unit,"kb")==0)
         return value * 1024;
 
-    if(strcmp(unit,"MB")==0)
+    if(strcasecmp(unit,"mb")==0)
         return value * 1024 * 1024;
 
-    if(strcmp(unit,"GB")==0)
+    if(strcasecmp(unit,"gb")==0)
         return value * 1024LL * 1024LL * 1024LL;
 
-    if(strcmp(unit,"TB")==0)
+    if(strcasecmp(unit,"tb")==0)
         return value * 1024LL * 1024LL * 1024LL * 1024LL;
 
-    /* ⭐ If unit is invalid */
     printf("Warning: Invalid unit '%s'. Assuming Byte.\n", unit);
+    return value;
+}
 
-    return value;   // treat as Byte
+/* ---------- PARSE INPUT (MULTIPLE UNITS) ---------- */
+
+long long parseMemoryInput()
+{
+    char line[200];
+    long long totalBytes = 0;
+
+    fgets(line,sizeof(line),stdin);
+
+    char *token = strtok(line," \n");
+
+    while(token != NULL)
+    {
+        double value = atof(token);
+
+        char *unit = strtok(NULL," \n");
+
+        if(unit == NULL)
+        {
+            /* Default unit = Byte */
+            totalBytes += convertToBytes(value,"Byte");
+            break;
+        }
+
+        totalBytes += convertToBytes(value,unit);
+
+        token = strtok(NULL," \n");
+    }
+
+    return totalBytes;
 }
 
 /* ---------- FIRST FIT ---------- */
@@ -205,66 +236,40 @@ int main()
     printf("===== Memory Allocation Simulator =====\n");
 
     printf("\nEnter number of memory blocks: ");
-    if(scanf("%d",&m)!=1 || m<=0)
-    {
-        printf("Error: Invalid number of blocks.\n");
-        return 1;
-    }
+    scanf("%d",&m);
+    getchar();
 
     long long block[m];
 
-    printf("\nEnter block sizes (Allowed units: Bit Byte KB MB GB TB)\n");
+    printf("\nEnter block sizes (Allowed units: Bit, Byte, KB, MB, GB, TB)\n");
     printf("Default unit is Byte\n");
 
     for(int i=0;i<m;i++)
     {
-        double value;
-        char unit[10]="Byte";
-        char line[50];
-
         printf("Block %d: ",i+1);
-
-        getchar();  // clear buffer
-        fgets(line,sizeof(line),stdin);
-
-        sscanf(line,"%lf %s",&value,unit);
-
-        block[i]=convertToBytes(value,unit);
+        block[i]=parseMemoryInput();
     }
 
     printf("\nEnter number of processes: ");
-    if(scanf("%d",&n)!=1 || n<=0)
-    {
-        printf("Error: Invalid number of processes.\n");
-        return 1;
-    }
+    scanf("%d",&n);
+    getchar();
 
     long long process[n];
 
-    printf("\nEnter process sizes (Allowed units: Bit Byte KB MB GB TB)\n");
+    printf("\nEnter process sizes (Allowed units: Bit, Byte, KB, MB, GB, TB)\n");
     printf("Default unit is Byte\n");
 
     for(int i=0;i<n;i++)
     {
-    double value;
-    char unit[10]="Byte";
-    char line[50];
-
-    printf("Process %d: ",i+1);
-
-    getchar();   // clear input buffer
-    fgets(line,sizeof(line),stdin);
-
-    sscanf(line,"%lf %s",&value,unit);
-
-    process[i]=convertToBytes(value,unit);
+        printf("Process %d: ",i+1);
+        process[i]=parseMemoryInput();
     }
 
     FILE *fp=fopen("output.txt","w");
 
     if(fp==NULL)
     {
-        printf("Error: Could not open output file.\n");
+        printf("Error opening output file\n");
         return 1;
     }
 
