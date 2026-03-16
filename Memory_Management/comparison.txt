@@ -1,2 +1,2 @@
-FIFO 3
-LRU 3
+FIFO 5
+LRU 5

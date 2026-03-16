@@ -214,6 +214,7 @@ int main()
     long long block[m];
 
     printf("\nEnter block sizes (Allowed units: Bit Byte KB MB GB TB)\n");
+    printf("Default unit is Byte\n");
 
     for(int i=0;i<m;i++)
     {
@@ -241,6 +242,7 @@ int main()
     long long process[n];
 
     printf("\nEnter process sizes (Allowed units: Bit Byte KB MB GB TB)\n");
+    printf("Default unit is Byte\n");
 
     for(int i=0;i<n;i++)
     {
