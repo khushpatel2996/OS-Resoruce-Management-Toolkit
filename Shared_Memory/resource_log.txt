@@ -1,0 +1,8 @@
+Fri Mar 13 15:56:08 2026 khush    7484   0          ALLOCATED 
+Fri Mar 13 15:56:10 2026 khush    7484   3          ALLOCATED 
+Fri Mar 13 15:56:42 2026 sahil    7763   4          ALLOCATED 
+Fri Mar 13 15:56:49 2026 sahil    7763   0          WAITING   
+Fri Mar 13 15:57:10 2026 bansari  8120   0          WAITING   
+Fri Mar 13 15:57:22 2026 yash     8272   0          WAITING   
+Fri Mar 13 15:57:48 2026 khush    7484   0          RELEASED  
+Fri Mar 13 15:57:48 2026 AUTO     7484   0          ALLOCATED 
