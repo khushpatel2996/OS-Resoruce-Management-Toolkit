@@ -1,0 +1,13 @@
+06:03:46   dhwanit      4117     -          LOGIN
+06:04:22   dhwamnit     4134     -          LOGIN
+06:04:43   dhwanit      4117     R2         ALLOCATED
+06:05:11   sahil        4151     -          LOGIN
+06:05:22   sahil        4151     R4         ALLOCATED
+06:05:29   sahil        4151     R2         WAITING
+06:06:23   dhwanit      4117     R2         RELEASED
+06:06:23   sahil        4151     R2         ALLOCATED
+10:33:18   sahil        4117     -          LOGIN
+10:33:40   sahil        4117     R1         ALLOCATED
+10:33:50   sahil        4117     R0         ALLOCATED
+10:34:32   bansari      4134     -          LOGIN
+10:34:36   bansari      4134     R0         WAITING
